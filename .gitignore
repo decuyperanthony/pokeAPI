@@ -1,0 +1,5 @@
+node_modules/
+.env
+roadmap.md
+public/image
+dist/
