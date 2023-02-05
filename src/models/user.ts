@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 const MODELNAME = 'user';
 
-interface IUser {
+export interface IUser {
   _id: Types.ObjectId;
   email: string;
   password: string;

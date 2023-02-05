@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+
 import { passportMiddleware } from './middlewares/passport.js';
 import pokemonRouter from './router/pokemon.js';
 import userRouter from './router/user.js';
@@ -23,6 +25,8 @@ app.use(
   })
 );
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
 
 app.use(morgan('dev'));
 

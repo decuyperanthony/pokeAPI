@@ -3,7 +3,7 @@ import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-import UserModel from '../models/user.js';
+import UserModel, { IUser } from '../models/user.js';
 
 import { catchErrors } from '../utils/error.js';
 import { comparePassword } from '../utils/auth.js';
@@ -47,6 +47,7 @@ const logoutCookieOptions = (): CookieOptions => {
 
 export const login = catchErrors(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log('req.body', req.body);
     try {
       z.string().parse(req.body.password);
       z.string()
@@ -139,3 +140,20 @@ export const signup = catchErrors(async (req, res, next) => {
     user: user.userResponseModel()
   });
 });
+
+export const signinToken = catchErrors(
+  async (req: Request & { user: IUser }, res: Response, next: NextFunction) => {
+    console.log('req.cookies', req.cookies);
+    try {
+      z.string().parse(req.cookies.jwt);
+    } catch (e) {
+      const error = new Error(`Invalid request in user signinToken: ${e}`);
+      res.status(400);
+      return next(error);
+    }
+    console.log('req.user', req.cookies);
+    return res
+      .status(200)
+      .send({ ok: true, user: req.user.userResponseModel() });
+  }
+);
