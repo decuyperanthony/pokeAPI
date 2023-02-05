@@ -1,12 +1,15 @@
 dotenv.config();
 import express, { Express } from 'express';
+import mongoose from 'mongoose';
+
 import * as dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
+import { passportMiddleware } from './middlewares/passport.js';
+import pokemonRouter from './router/pokemon.js';
+import userRouter from './router/user.js';
 
-import router from './router/pokemon.js';
-
-import { CORS_ORIGIN_ALLOWED } from './utils/config.js';
+import { CORS_ORIGIN_ALLOWED, MONGODB_ADDON_URI } from './utils/config.js';
 
 const app: Express = express();
 
@@ -23,9 +26,19 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan('dev'));
 
+// * PASSPORT
+passportMiddleware(app);
+
 // * ROUTER
-app.use(router);
+app.use(userRouter);
+app.use(pokemonRouter);
+
+// == mongoo
+mongoose.set('strictQuery', false);
+mongoose.connect(MONGODB_ADDON_URI);
 
 app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at foobar http://localhost:${port}`);
+  console.log(
+    `⚡️[server]: Server is running at foobar http://localhost:${port}`
+  );
 });
