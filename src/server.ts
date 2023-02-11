@@ -42,7 +42,5 @@ mongoose.set('strictQuery', false);
 mongoose.connect(MONGODB_ADDON_URI);
 
 app.listen(port, () => {
-  console.log(
-    `⚡️[server]: Server is running at foobar http://localhost:${port}`
-  );
+  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
