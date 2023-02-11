@@ -35,6 +35,9 @@ app.use(morgan('dev'));
 passportMiddleware(app);
 
 // * ROUTER
+app.get('/', async (req, res) => {
+  res.send('Welcome to the pokemon API');
+});
 app.use(userRouter);
 app.use(pokemonRouter);
 
