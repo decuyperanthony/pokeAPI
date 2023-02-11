@@ -1,11 +1,13 @@
 import passport from 'passport';
 import { Express } from 'express';
 import { Strategy as JwtStrategy } from 'passport-jwt';
-import { SECRET } from '../utils/config.js';
-import UserModel from '../models/user.js'; // load up the user model
+import { SECRET } from '../utils/config';
+import UserModel from '../models/user'; // load up the user model
 
 export const passportMiddleware = (app: Express) => {
   const jwtStrategyOptions = {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     jwtFromRequest: (req) => req.cookies.jwt,
     secretOrKey: SECRET
   };

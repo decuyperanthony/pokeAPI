@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import fetch from 'node-fetch';
-import { catchErrors } from '../utils/error.js';
+import { catchErrors } from '../utils/error';
 
 const POKEAPI_URL = 'https://pokeapi.co/api/v2';
 

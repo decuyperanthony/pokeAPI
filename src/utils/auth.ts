@@ -1,10 +1,13 @@
 import bcrypt from 'bcryptjs';
 
-const comparePassword = (password: string, expected: string): boolean => {
+const comparePassword = (
+  password: string,
+  expected: string
+): Promise<boolean> => {
   return bcrypt.compare(password, expected);
 };
 
-const hashPassword = (password: string): string => {
+const hashPassword = (password: string): Promise<string> => {
   return bcrypt.hash(password, 10);
 };
 

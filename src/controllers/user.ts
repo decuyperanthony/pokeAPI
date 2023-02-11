@@ -3,11 +3,11 @@ import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-import UserModel, { IUser } from '../models/user.js';
+import UserModel, { IUser } from '../models/user';
 
-import { catchErrors } from '../utils/error.js';
-import { comparePassword } from '../utils/auth.js';
-import { ENVIRONMENT, SECRET } from '../utils/config.js';
+import { catchErrors } from '../utils/error';
+import { comparePassword } from '../utils/auth';
+import { ENVIRONMENT, SECRET } from '../utils/config';
 
 const EMAIL_OR_PASSWORD_INVALID = 'EMAIL_OR_PASSWORD_INVALID';
 const JWT_MAX_AGE = 60 * 60 * 3; // 3 hours in s
@@ -39,7 +39,7 @@ const logoutCookieOptions = (): CookieOptions => {
       httpOnly: true,
       secure: true,
       // todo use real prod domain
-      domain: 'https://studio-ambiant.com/',
+      domain: 'https://domain.com/',
       sameSite: 'lax'
     };
   }
@@ -97,53 +97,54 @@ export const logout = catchErrors(async (_req: Request, res: Response) => {
   return res.status(200).send({ ok: true });
 });
 
-export const signup = catchErrors(async (req, res, next) => {
-  try {
-    z.string().email().parse(req.body.email);
-    z.string().min(1).parse(req.body.password);
-    z.string().min(1).parse(req.body.confirmPassword);
-  } catch (e) {
-    const error = new Error(`Invalid request in user signup: ${e}`);
-    res.status(400);
-    return next(error);
-  }
+export const signup = catchErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      z.string().email().parse(req.body.email);
+      z.string().min(1).parse(req.body.password);
+      z.string().min(1).parse(req.body.confirmPassword);
+    } catch (e) {
+      const error = new Error(`Invalid request in user signup: ${e}`);
+      res.status(400);
+      return next(error);
+    }
 
-  const { email, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
 
-  if (password !== confirmPassword)
-    return res
-      .status(400)
-      .send({ ok: false, error: 'Les mots de passe ne sont pas identiques' });
+    if (password !== confirmPassword)
+      return res
+        .status(400)
+        .send({ ok: false, error: 'Les mots de passe ne sont pas identiques' });
 
-  const newUser = {
-    _id: new mongoose.Types.ObjectId(),
-    email: email.trim().toLowerCase(),
-    password
-  };
+    const newUser = {
+      _id: new mongoose.Types.ObjectId(),
+      email: email.trim().toLowerCase(),
+      password
+    };
 
-  const prevUser = await UserModel.findOne({ email: newUser.email });
-  if (prevUser)
-    return res.status(400).send({
-      ok: false,
-      error: 'Un utilisateur existe déja avec cet email'
+    const prevUser = await UserModel.findOne({ email: newUser.email });
+    if (prevUser)
+      return res.status(400).send({
+        ok: false,
+        error: 'Un utilisateur existe déja avec cet email'
+      });
+
+    const user = await UserModel.create(newUser);
+
+    const token = jwt.sign({ _id: user._id }, SECRET, {
+      expiresIn: JWT_MAX_AGE
     });
+    res.cookie('jwt', token, cookieOptions());
 
-  const user = await UserModel.create(newUser);
-
-  const token = jwt.sign({ _id: user._id }, SECRET, {
-    expiresIn: JWT_MAX_AGE
-  });
-  res.cookie('jwt', token, cookieOptions());
-
-  return res.status(200).send({
-    ok: true,
-    user: user.userResponseModel()
-  });
-});
+    return res.status(200).send({
+      ok: true,
+      user: user.userResponseModel()
+    });
+  }
+);
 
 export const signinToken = catchErrors(
   async (req: Request & { user: IUser }, res: Response, next: NextFunction) => {
-    console.log('req.cookies', req.cookies);
     try {
       z.string().parse(req.cookies.jwt);
     } catch (e) {
