@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
-// import './lib/db.js';
-import mongoose from 'mongoose';
+import './lib/db.ts';
 
 import * as dotenv from 'dotenv';
 import cors from 'cors';
@@ -11,7 +10,7 @@ import { passportMiddleware } from './middlewares/passport';
 import pokemonRouter from './router/pokemon';
 import userRouter from './router/user';
 
-import { CORS_ORIGIN_ALLOWED, MONGODB_ADDON_URI } from './utils/config';
+import { CORS_ORIGIN_ALLOWED } from './utils/config';
 
 dotenv.config();
 const app: Express = express();
@@ -40,17 +39,6 @@ app.get('/', async (req, res) => {
 });
 app.use(userRouter);
 app.use(pokemonRouter);
-
-// == mongoo
-mongoose.set('strictQuery', false);
-mongoose.connect(MONGODB_ADDON_URI as string);
-const database = mongoose.connection;
-
-database.on(
-  'error',
-  console.error.bind(console, '❌ mongodb connection error')
-);
-database.once('open', () => console.log('✅ mongodb connected successfully'));
 
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

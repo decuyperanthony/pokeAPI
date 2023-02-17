@@ -47,7 +47,6 @@ const logoutCookieOptions = (): CookieOptions => {
 
 export const login = catchErrors(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log('req.body', req.body);
     try {
       z.string().parse(req.body.password);
       z.string()
@@ -152,7 +151,6 @@ export const signinToken = catchErrors(
       res.status(400);
       return next(error);
     }
-    console.log('req.user', req.cookies);
     return res
       .status(200)
       .send({ ok: true, user: req.user.userResponseModel() });
